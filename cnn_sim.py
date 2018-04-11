@@ -91,24 +91,21 @@ from keras.models import Model
 # In[67]:
 
 model = Model(inputs=[qus1, qus2], outputs=den2)
-
+model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
 # In[68]:
 
 data_q1 = data['question1'].values
-data_q1.shape
 
 
 # In[69]:
 
 data_q2 = data['question2'].values
-data_q2.shape
 
 
 # In[70]:
 
 label = data['is_duplicate'].values
-label.shape
 
 
 # In[71]:
@@ -118,7 +115,6 @@ data.info()
 
 # In[73]:
 
-model.compile(loss='binary_crossentropy', optimizer='sgd', metrics=['accuracy'])
 
 
 # In[74]:
@@ -139,13 +135,10 @@ tokenizer = Tokenizer(num_words=MAX_NB_WORDS)
 
 # In[84]:
 
-#data_q1, data_q2 = [x.tolist() for x in [data_q1, data_q2]]
+data_q1, data_q2 = [x.tolist() for x in [data_q1, data_q2]]
 
 
 # In[85]:
-
-len(data_q1)
-
 
 # In[86]:
 
@@ -215,18 +208,6 @@ label_suf = label[indices]
 nb_validation_samples = int(VALIDATION_SPLIT * seq2_pad_suf.shape[0])
 
 
-# In[113]:
-
-nb_validation_samples
-
-
-# In[114]:
-
-VALIDATION_SPLIT
-
-
-# In[118]:
-
 seq1_train = seq1_pad_suf[:-nb_validation_samples]
 seq1_test = seq1_pad_suf[-nb_validation_samples:]
 seq2_train = seq2_pad_suf[:-nb_validation_samples]
@@ -235,32 +216,18 @@ y_train = label_suf[:-nb_validation_samples]
 y_test = label_suf[-nb_validation_samples:]
 
 
-# In[119]:
-
-seq1_train.shape
-
-
-# In[120]:
-
-seq1_test.shape
-
-
-# In[121]:
-
-y_train.shape
-
-
-# In[122]:
-
-y_test.shape
-
-
 # In[ ]:
+model.fit([seq1_train, seq2_train], y_train, epochs=2, batch_size=1000)
 
-model.fit([seq1_train, seq2_train], y_train, epochs=2)
-
-
-# In[ ]:
+score = model.evaluate([seq1_train, seq2_train], y_train, verbose=0) 
+print('train score:', score[0])
+print('train accuracy:', score[1])
+score = model.evaluate([seq1_test, seq2_test], y_test, verbose=0) 
+print('Test score:', score[0])
+print('Test accuracy:', score[1])
+model.save('20c.h5')
+model.summary()
+del model
 
 
 
